@@ -1,3 +1,5 @@
+include <shorthand.scad>
+
 //                                                            
 //                                   shaft diam    bolt diam       conn height
 //                      base diam    shaft diam@D  bolt depth      conn width
@@ -42,22 +44,25 @@ module nema(type = NEMA_DEFAULT, h = 30, mask = 0)
     translate(top * nema_shaft_length(type))
     cylinder(d=nema_shaft_diam(type)+mask, h=nema_shaft_length(type)+mask, center = true);
     
-    difference()
+    if (mask)
     {
         translate(bottom * h)
         cube(nema_size(type, h), center = true);
+    
+        nema_foreach_hole(type) 
+        translate(top * nema_hole_depth(type))
+        cylinder(d=nema_hole_diam(type)+mask, h = nema_hole_depth(type)+2*mask, center=true);
+    }
+    else difference()
+    {
+        translate(bottom * h)
+        cub(nema_size(type, h), center = true, bevel=3);
         
-        # union() {
+        union() {
             nema_foreach_hole(type) 
             translate(bottom * nema_hole_depth(type))
             cylinder(d=nema_hole_diam(type), h = nema_hole_depth(type)+0.01, center=true);
         }
-    }
-    if (mask)
-    {
-            nema_foreach_hole(type) 
-            translate(top * nema_hole_depth(type))
-            cylinder(d=nema_hole_diam(type)+mask, h = nema_hole_depth(type)+2*mask, center=true);
     }
 }
 
