@@ -33,37 +33,36 @@ module nema_foreach_hole(type=NEMA_DEFAULT, at=[[-1,1], [1,1], [1,-1], [-1,-1]])
     }
 }
 
-module nema(type = NEMA_DEFAULT, h = 30, mask = 0)
+module nema(type = NEMA_DEFAULT, h = 30, mask = undef)
 {
     bottom = [0,  0, -0.5];
     top    = [0,  0,  0.5];
     bevel  = [3, -3,  0.0];
-
-    translate(top * nema_base_height(type))
-    cylinder(d=nema_base_diam(type)+mask, h=nema_base_height(type)+mask, center = true);
+    bh = nema_base_height(type);
+    bd = nema_base_diam(type);
+    sd = nema_shaft_diam(type);
+    sl = nema_shaft_length(type);
+    hd = nema_hole_diam(type);
+    hz = nema_hole_depth(type);
     
-    translate(top * nema_shaft_length(type))
-    cylinder(d=nema_shaft_diam(type)+mask, h=nema_shaft_length(type)+mask, center = true);
     
-    if (mask)
+    if (is_list(mask))
     {
-        translate(bottom * h)
-        cub(nema_size(type, h), bevel=bevel);
+        cub(nema_size(type, h) + mask, align=BOTTOM, bevel=bevel);
     
         nema_foreach_hole(type) 
-        translate(top * nema_hole_depth(type))
-        cylinder(d=nema_hole_diam(type)+mask, h = nema_hole_depth(type)+2*mask, center=true);
+        cyl([hd,hd,hz] + mask, align=TOP);
+       
+        cyl([bd,bd,sl] + mask, align=TOP);           
     }
     else difference()
     {
-        translate(bottom * h)
-        cub(nema_size(type, h), bevel=bevel);
-        
-        union() {
-            nema_foreach_hole(type) 
-            translate(bottom * nema_hole_depth(type))
-            cylinder(d=nema_hole_diam(type), h = nema_hole_depth(type)+0.01, center=true);
-        }
+        cub(nema_size(type, h), align=BOTTOM, bevel=bevel, at=TOP)
+        cyl([sd,sd,sl], align=TOP, at=BOTTOM) 
+        cyl([bd,bd,bh], align=TOP);
+    
+        union() nema_foreach_hole(type) 
+        cyl([hd,hd,hz], align=BOTTOM);
     }
 }
 
