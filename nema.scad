@@ -1,4 +1,4 @@
-include <shorthand.scad>
+include <../openscad-shorthand/shorthand.scad>
 
 //                                                            
 //                                   shaft diam    bolt diam       conn height
@@ -35,9 +35,10 @@ module nema_foreach_hole(type=NEMA_DEFAULT, at=[[-1,1], [1,1], [1,-1], [-1,-1]])
 
 module nema(type = NEMA_DEFAULT, h = 30, mask = 0)
 {
-    bottom = [0, 0, -0.5];
-    top    = [0, 0,  0.5];
-    
+    bottom = [0,  0, -0.5];
+    top    = [0,  0,  0.5];
+    bevel  = [3, -3,  0.0];
+
     translate(top * nema_base_height(type))
     cylinder(d=nema_base_diam(type)+mask, h=nema_base_height(type)+mask, center = true);
     
@@ -47,7 +48,7 @@ module nema(type = NEMA_DEFAULT, h = 30, mask = 0)
     if (mask)
     {
         translate(bottom * h)
-        cube(nema_size(type, h), center = true);
+        cub(nema_size(type, h), bevel=bevel);
     
         nema_foreach_hole(type) 
         translate(top * nema_hole_depth(type))
@@ -56,7 +57,7 @@ module nema(type = NEMA_DEFAULT, h = 30, mask = 0)
     else difference()
     {
         translate(bottom * h)
-        cub(nema_size(type, h), center = true, bevel=3);
+        cub(nema_size(type, h), bevel=bevel);
         
         union() {
             nema_foreach_hole(type) 
