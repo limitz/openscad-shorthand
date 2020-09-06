@@ -37,10 +37,10 @@ module nema(type = NEMA_DEFAULT, h = 30, mask = 0)
     top    = [0, 0,  0.5];
     
     translate(top * nema_base_height(type))
-    cylinder(d=nema_base_diam(type), h=nema_base_height(type+mask), center = true);
+    cylinder(d=nema_base_diam(type)+mask, h=nema_base_height(type)+mask, center = true);
     
     translate(top * nema_shaft_length(type))
-    cylinder(d=nema_shaft_diam(type), h=nema_shaft_length(type+mask), center = true);
+    cylinder(d=nema_shaft_diam(type)+mask, h=nema_shaft_length(type)+mask, center = true);
     
     difference()
     {
@@ -56,8 +56,8 @@ module nema(type = NEMA_DEFAULT, h = 30, mask = 0)
     if (mask)
     {
             nema_foreach_hole(type) 
-            translate(bottom * nema_hole_depth(type))
-            cylinder(d=nema_hole_diam(type)+mask, h = nema_hole_depth(type)*2+2*mask, center=true);
+            translate(top * nema_hole_depth(type))
+            cylinder(d=nema_hole_diam(type)+mask, h = nema_hole_depth(type)+2*mask, center=true);
     }
 }
 
