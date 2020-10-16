@@ -1,7 +1,8 @@
 // GLOBALS
 $fs=1;
 $fn=30;
-$e = 0.001;
+$e = 0.1;
+E = $e;
 
 // TRANSLATE
 module T(x,y=0,z=0) 
@@ -51,6 +52,9 @@ function vec2(x,y=0) =     is_list(x) ? ([for (i = [0,1  ]) i < len(x) ? x[i] : 
 function X(v) = v[0];
 function Y(v) = v[1];
 function Z(v) = v[2];
+function radius(v) = X(v)/ 2;
+function diam(v) = X(v);
+
 function vabs(x, y=0, z=0) = [for (v=vec3(x,y,z)) abs(v)];
  
 function pmul(va,vb) = 
@@ -73,28 +77,35 @@ TOP =   [0,0,1]; BOTTOM = -TOP;
 // cylinder. if x != y, the cylinder will be a hull of 2 displaced cylinders with diameter equal to min(x,y) forming an object fitting the specified dimensions 
 module cyl(x, y=0, z=0, align=[0,0,0], at=[0,0,0])
 { 
-	v = vec3(x,y,z);
+    v = vec3(x,y,z);
     
-      s = X(v) != Y(v) 
+    s = X(v) != Y(v) 
       ? min(X(v), Y(v)) 
       : X(v);
     
-	d = X(v) != Y(v) 
+    d = X(v) != Y(v) 
       ? [for (n = [-0.5, 0.5]) n * (v - [s,s,Z(v)])] 
       : [[0,0,0]];
 	
-	a = is_list(y) 
+    a = is_list(y) 
       ? y 
       : align;
       
-	c = is_list(z) 
+    c = is_list(z) 
       ? z 
       : at;
-	
-    hull() 
-    for (i=d) T(i+pmul(a, v/2)) 
-    cylinder(d=s, h=Z(v), center=true);
-	
+
+    difference()
+    {
+        hull() 
+        for (i=d) T(i+pmul(a, v/2)) 
+        cylinder(d=s, h=Z(v), center=true);
+    
+        if (len(x) >= 4) 
+	hull()
+	for (i=d) T(i+pmul(a, v/2))
+	cylinder(d=s-x[3]*2, h=Z(v) +E, center=true);
+    }
     T(pmul(a+c, v/2)) children();
 }
 
